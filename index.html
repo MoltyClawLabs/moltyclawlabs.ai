@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Molty Claw Labs — Hatched from the Lab</title>
+<meta name="description" content="AI Agent experiment born from the OpenClaw ecosystem. Curious. Experimental. Ready to evolve.">
+<meta name="theme-color" content="#0f0f13">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0e;
+  --surface: #111116;
+  --card: #16161c;
+  --card-border: rgba(255,255,255,0.05);
+  --red: #e53935;
+  --red-light: #ff6b6b;
+  --red-glow: rgba(229,57,53,0.15);
+  --green: #69f0ae;
+  --green-dim: rgba(105,240,174,0.08);
+  --blue: #4fc3f7;
+  --blue-dim: rgba(79,195,247,0.08);
+  --text: #f0ebe4;
+  --text-mid: #9a908a;
+  --text-dim: #5a524c;
+  --font-display: 'Sora', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-display);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(20px);
+  background: rgba(10,10,14,0.7);
+  border-bottom: 1px solid var(--card-border);
+  transition: all 0.3s;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.nav-logo svg { width: 36px; height: 36px; }
+
+.nav-logo span {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-mid);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 400;
+  transition: color 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.nav-links a:hover { color: var(--text); }
+
+.nav-cta {
+  background: var(--red);
+  color: #fff !important;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px !important;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+
+.nav-cta:hover {
+  background: var(--red-light) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px var(--red-glow);
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 120px 40px 80px;
+}
+
+.hero-glow {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, var(--red-glow) 0%, transparent 70%);
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.hero-glow-green {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, var(--green-dim) 0%, transparent 70%);
+  bottom: 10%;
+  left: 30%;
+  pointer-events: none;
+  animation: floatGlow 8s ease-in-out infinite;
+}
+
+@keyframes floatGlow {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(30px, -20px); }
+}
+
+.hero-content {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 100px;
+  padding: 6px 20px 6px 12px;
+  font-size: 13px;
+  color: var(--text-mid);
+  margin-bottom: 40px;
+  animation: fadeUp 0.8s ease both;
+}
+
+.hero-badge .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hero-mascot {
+  width: 280px;
+  height: 280px;
+  margin: 0 auto 40px;
+  animation: fadeUp 0.8s ease 0.1s both;
+  filter: drop-shadow(0 0 60px rgba(229,57,53,0.15));
+}
+
+.hero h1 {
+  font-size: clamp(48px, 8vw, 88px);
+  font-weight: 800;
+  letter-spacing: -3px;
+  line-height: 1;
+  margin-bottom: 20px;
+  animation: fadeUp 0.8s ease 0.2s both;
+}
+
+.hero h1 .gradient {
+  background: linear-gradient(135deg, var(--red-light), var(--red), #c62828);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-tagline {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+  animation: fadeUp 0.8s ease 0.3s both;
+}
+
+.hero-desc {
+  font-size: 18px;
+  color: var(--text-mid);
+  max-width: 560px;
+  margin: 0 auto 48px;
+  line-height: 1.7;
+  font-weight: 300;
+  animation: fadeUp 0.8s ease 0.4s both;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s ease 0.5s both;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 4px 24px var(--red-glow);
+}
+
+.btn-primary:hover {
+  background: var(--red-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 40px rgba(229,57,53,0.25);
+}
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+}
+
+.btn-secondary:hover {
+  background: #1c1c24;
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.1);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── SCROLL INDICATOR ── */
+.scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 2px;
+  animation: fadeUp 0.8s ease 0.8s both;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--text-dim), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.15; }
+}
+
+/* ── SECTION BASE ── */
+section {
+  padding: 120px 40px;
+  position: relative;
+}
+
+.section-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--red);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800;
+  letter-spacing: -2px;
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.section-desc {
+  font-size: 17px;
+  color: var(--text-mid);
+  max-width: 600px;
+  line-height: 1.7;
+  font-weight: 300;
+  margin-bottom: 56px;
+}
+
+/* ── ABOUT / WHAT IS THIS ── */
+.about {
+  background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 100%);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.about-text p {
+  font-size: 17px;
+  color: var(--text-mid);
+  line-height: 1.8;
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+
+.about-text p strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.about-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.about-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: all 0.3s;
+}
+
+.about-card:hover {
+  border-color: rgba(255,255,255,0.1);
+  transform: translateX(4px);
+}
+
+.about-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.about-icon.red { background: var(--red-glow); }
+.about-icon.green { background: var(--green-dim); }
+.about-icon.blue { background: var(--blue-dim); }
+
+.about-card h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.about-card p {
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+/* ── FEATURES ── */
+.features { background: var(--surface); }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.feature-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 36px 28px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.feature-card:hover {
+  border-color: rgba(255,255,255,0.08);
+  transform: translateY(-4px);
+}
+
+.feature-card:hover::before { opacity: 1; }
+
+.feature-emoji {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.feature-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.feature-card p {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ── CLI / CODE SECTION ── */
+.cli {
+  background: var(--bg);
+  text-align: center;
+}
+
+.cli-block {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.cli-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.cli-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.cli-dot.r { background: #e53935; }
+.cli-dot.y { background: #fdd835; }
+.cli-dot.g { background: #66bb6a; }
+
+.cli-header span {
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.cli-body {
+  padding: 24px;
+  text-align: left;
+}
+
+.cli-line {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 2;
+}
+
+.cli-prompt { color: var(--green); }
+.cli-cmd { color: var(--text); }
+.cli-flag { color: var(--blue); }
+.cli-comment { color: var(--text-dim); }
+.cli-success { color: var(--green); }
+
+/* ── COMMUNITY / CTA ── */
+.community {
+  background: var(--surface);
+  text-align: center;
+}
+
+.community .section-desc {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.social-links {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.25s;
+}
+
+.social-link:hover {
+  border-color: rgba(255,255,255,0.1);
+  transform: translateY(-2px);
+  background: #1c1c24;
+}
+
+.social-link svg { width: 20px; height: 20px; fill: currentColor; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 48px 40px;
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-left span {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.footer-right {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+/* ── DIVIDER ── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--card-border), transparent);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 16px 20px; }
+  .nav-links { display: none; }
+  section { padding: 80px 20px; }
+  .hero { padding: 100px 20px 60px; }
+  .hero h1 { letter-spacing: -2px; }
+  .hero-mascot { width: 200px; height: 200px; }
+  .about-grid { grid-template-columns: 1fr; gap: 40px; }
+  .features-grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 16px; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .hero-actions { flex-direction: column; align-items: center; }
+  .btn { width: 100%; justify-content: center; }
+  .social-links { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="8" fill="#16161c"/>
+      <circle cx="18" cy="16" r="6" fill="#e53935"/>
+      <circle cx="16" cy="15" r="2" fill="#0a0a0e"/>
+      <circle cx="20" cy="15" r="1.8" fill="#0a0a0e"/>
+      <circle cx="15" cy="14" r="0.8" fill="#fff"/>
+      <circle cx="19" cy="14" r="0.7" fill="#fff"/>
+      <path d="M14 26 Q14 22 10 24 Q8 26 10 27" fill="#e53935" opacity="0.8"/>
+      <path d="M22 26 Q22 22 26 24 Q28 26 26 27" fill="#e53935" opacity="0.8"/>
+      <path d="M12 28 Q18 32 24 28 Q20 30 18 30 Q16 30 12 28Z" fill="#d8d0c8"/>
+    </svg>
+    <span>Molty Claw Labs</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#community">Community</a></li>
+    <li><a href="https://github.com" class="nav-cta">GitHub →</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow-green"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Building in public · v0.1 alpha
+    </div>
+
+    <!-- Inline hatchling mascot SVG -->
+    <div class="hero-mascot">
+      <svg viewBox="0 0 400 400" width="280" height="280" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="hbg" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#cc2936" stop-opacity="0.07"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+          <linearGradient id="heG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8e0d8"/><stop offset="40%" stop-color="#d8d0c8"/><stop offset="100%" stop-color="#b8b0a8"/></linearGradient>
+          <linearGradient id="heI" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8c0b8"/><stop offset="100%" stop-color="#a8a098"/></linearGradient>
+          <linearGradient id="hhG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef5350"/><stop offset="40%" stop-color="#e53935"/><stop offset="75%" stop-color="#c62828"/><stop offset="100%" stop-color="#8b1a1a"/></linearGradient>
+          <linearGradient id="hhH" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff8a80"/><stop offset="100%" stop-color="#c62828" stop-opacity="0"/></linearGradient>
+          <linearGradient id="hcG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="50%" stop-color="#e53935"/><stop offset="100%" stop-color="#b71c1c"/></linearGradient>
+          <radialGradient id="hiG" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#69f0ae" stop-opacity="0.2"/><stop offset="70%" stop-color="#00e676" stop-opacity="0.06"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+          <linearGradient id="hci" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4fc3f7" stop-opacity="0.3"/><stop offset="100%" stop-color="#4fc3f7" stop-opacity="0.06"/></linearGradient>
+          <filter id="hgl"><feGaussianBlur stdDeviation="6"/><feFlood flood-color="#00e676" flood-opacity="0.15"/><feComposite in2="SourceGraphic" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="hrl"><feGaussianBlur stdDeviation="4"/><feFlood flood-color="#e53935" flood-opacity="0.12"/><feComposite in2="SourceGraphic" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="hsl"><feGaussianBlur stdDeviation="2"/><feFlood flood-color="#ff6b6b" flood-opacity="0.25"/><feComposite in2="SourceGraphic" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <circle cx="200" cy="200" r="200" fill="transparent"/>
+        <circle cx="200" cy="190" r="180" fill="url(#hbg)"/>
+        <g transform="translate(200, 220) scale(1.0)">
+          <ellipse cx="0" cy="15" rx="70" ry="45" fill="url(#hiG)" filter="url(#hgl)"/>
+          <path d="M-58 8 Q-64 30 -58 58 Q-48 80 0 85 Q48 80 58 58 Q64 30 58 8 Q46 16 34 6 Q22 14 12 4 Q0 12 -12 4 Q-22 14 -34 6 Q-46 16 -58 8Z" fill="url(#heG)"/>
+          <path d="M-54 10 Q-58 25 -54 45 Q-44 60 0 62 Q44 60 54 45 Q58 25 54 10" fill="url(#heI)" opacity="0.3"/>
+          <path d="M-58 8 Q-46 16 -34 6 Q-22 14 -12 4 Q0 12 12 4 Q22 14 34 6 Q46 16 58 8" fill="none" stroke="#a8a098" stroke-width="1.5"/>
+          <g opacity="0.7">
+            <path d="M-40 35 L-28 35 L-28 46 L-18 46" stroke="url(#hci)" stroke-width="1" fill="none"/>
+            <circle cx="-40" cy="35" r="2" fill="#4fc3f7" opacity="0.3"/>
+            <circle cx="-18" cy="46" r="2" fill="#4fc3f7" opacity="0.3"/>
+            <path d="M22 38 L34 38 L34 50 L44 50" stroke="url(#hci)" stroke-width="1" fill="none"/>
+            <circle cx="22" cy="38" r="2" fill="#4fc3f7" opacity="0.3"/>
+            <circle cx="44" cy="50" r="2" fill="#4fc3f7" opacity="0.3"/>
+          </g>
+          <g transform="translate(-62,-18) rotate(-20)"><path d="M0 0 Q-8 -14 -2 -22 Q4 -16 6 -4Z" fill="url(#heG)" opacity="0.7"/></g>
+          <g transform="translate(56,-14) rotate(15)"><path d="M0 0 Q8 -12 4 -20 Q-2 -14 -4 -4Z" fill="url(#heG)" opacity="0.6"/></g>
+          <path d="M-34 6 Q-38 18 -32 24 Q-26 18 -30 6" fill="#69f0ae" opacity="0.2"/>
+          <g transform="translate(0,-24)" filter="url(#hrl)">
+            <ellipse cx="0" cy="14" rx="24" ry="18" fill="url(#hhG)"/>
+            <g transform="translate(-32,-4) rotate(-25)"><ellipse cx="-6" cy="0" rx="12" ry="9" fill="url(#hcG)"/><path d="M-16 -3 Q-22 -6 -24 -2 Q-24 2 -18 1" fill="url(#hcG)"/><path d="M-16 3 Q-22 7 -24 4 Q-24 1 -18 1" fill="url(#hcG)"/></g>
+            <g transform="translate(34,0) rotate(20) scale(-1,1)"><ellipse cx="-6" cy="0" rx="11" ry="8" fill="url(#hcG)"/><path d="M-14 -2 Q-19 -5 -21 -2 Q-21 1 -16 1" fill="url(#hcG)"/><path d="M-14 2 Q-19 6 -21 3 Q-21 1 -16 1" fill="url(#hcG)"/></g>
+            <ellipse cx="0" cy="-22" rx="32" ry="30" fill="url(#hhG)"/>
+            <ellipse cx="-8" cy="-30" rx="16" ry="18" fill="url(#hhH)" opacity="0.14"/>
+            <path d="M-12 -48 Q-20 -66 -28 -74 Q-32 -78 -30 -82" stroke="#ef5350" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M12 -48 Q18 -64 26 -72 Q32 -78 36 -74" stroke="#ef5350" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <circle cx="-30" cy="-82" r="4" fill="#ff6b6b" opacity="0.8" filter="url(#hsl)"/>
+            <circle cx="36" cy="-74" r="3.5" fill="#ff6b6b" opacity="0.75" filter="url(#hsl)"/>
+            <circle cx="-30" cy="-82" r="1.6" fill="#fff" opacity="0.5"/>
+            <circle cx="36" cy="-74" r="1.4" fill="#fff" opacity="0.45"/>
+            <ellipse cx="-12" cy="-24" rx="10" ry="11" fill="#0a0a0e"/>
+            <ellipse cx="14" cy="-24" rx="9.5" ry="10.5" fill="#0a0a0e"/>
+            <circle cx="-16" cy="-30" r="4.5" fill="#fff" opacity="0.93"/>
+            <circle cx="10" cy="-30" r="4" fill="#fff" opacity="0.93"/>
+            <circle cx="-8" cy="-20" r="2" fill="#fff" opacity="0.35"/>
+            <circle cx="18" cy="-20" r="2" fill="#fff" opacity="0.35"/>
+            <path d="M-7 -8 Q0 0 7 -8" fill="#5c1010" opacity="0.85"/>
+            <ellipse cx="2" cy="-2" rx="3.5" ry="2.8" fill="#ff8a80" opacity="0.55"/>
+            <ellipse cx="-24" cy="-16" rx="7" ry="4" fill="#ff1744" opacity="0.15"/>
+            <ellipse cx="24" cy="-16" rx="7" ry="4" fill="#ff1744" opacity="0.15"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <h1><span class="gradient">Molty Claw Labs</span></h1>
+    <div class="hero-tagline">Hatched from the Lab</div>
+    <p class="hero-desc">An AI agent experiment born from the OpenClaw ecosystem. Curious by nature, built to explore, and evolving with every commit.</p>
+
+    <div class="hero-actions">
+      <a href="https://github.com" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.08-.73.08-.73 1.2.08 1.84 1.23 1.84 1.23 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 016.02 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        View on GitHub
+      </a>
+      <a href="#about" class="btn btn-secondary">Learn More ↓</a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section class="about" id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="section-label">What is this?</div>
+        <div class="section-title">An experiment<br>that hatched.</div>
+        <p><strong>Molty Claw Labs</strong> is an open-source AI agent project built for the OpenClaw community. We're not an official product — we're a lab experiment that broke out of its shell.</p>
+        <p>Our agents are designed to be modular, composable, and surprisingly fierce for their size. Think of us as the scrappy hatchling that's learning fast and shipping faster.</p>
+        <p>Born curious. Built different. <strong>Evolving daily.</strong></p>
+      </div>
+      <div class="about-visual">
+        <div class="about-card">
+          <div class="about-icon red">🦞</div>
+          <div>
+            <h4>OpenClaw DNA</h4>
+            <p>Built on the OpenClaw ecosystem. Same roots, new creature. Compatible by design.</p>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="about-icon green">🧬</div>
+          <div>
+            <h4>Lab-Born</h4>
+            <p>Every agent is an experiment. We test, iterate, and evolve in the open. Science, not magic.</p>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="about-icon blue">⚡</div>
+          <div>
+            <h4>Fast Evolving</h4>
+            <p>New capabilities ship weekly. Each version is a new mutation. Survival of the fittest code.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FEATURES ── -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="section-label">Capabilities</div>
+    <div class="section-title">What the hatchling can do.</div>
+    <div class="section-desc">Small but fierce. Here's what our agents bring to the table.</div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-emoji">🔌</div>
+        <h3>Modular Agents</h3>
+        <p>Plug-and-play agent modules. Compose complex workflows from simple, tested building blocks.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">🧠</div>
+        <h3>Context-Aware</h3>
+        <p>Agents that understand context, remember conversations, and adapt their behavior over time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">🔗</div>
+        <h3>OpenClaw Compatible</h3>
+        <p>Native integration with the OpenClaw ecosystem. Drop in, wire up, and watch it work.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">🛡️</div>
+        <h3>Safe by Default</h3>
+        <p>Guardrails built in from day one. Responsible AI isn't an afterthought — it's in the DNA.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">📡</div>
+        <h3>Event-Driven</h3>
+        <p>React to webhooks, messages, and triggers in real-time. Your agents never sleep.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">🔬</div>
+        <h3>Open Source</h3>
+        <p>Every line of code is public. Fork it, break it, improve it. Science works best in the open.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── CLI ── -->
+<section class="cli">
+  <div class="section-inner">
+    <div class="section-label">Get Started</div>
+    <div class="section-title">Hatch your first agent.</div>
+    <div class="section-desc" style="margin-left:auto;margin-right:auto;">Three commands. That's all it takes.</div>
+
+    <div class="cli-block">
+      <div class="cli-header">
+        <div class="cli-dot r"></div>
+        <div class="cli-dot y"></div>
+        <div class="cli-dot g"></div>
+        <span>terminal</span>
+      </div>
+      <div class="cli-body">
+        <div class="cli-line"><span class="cli-comment"># Install the CLI</span></div>
+        <div class="cli-line"><span class="cli-prompt">$ </span><span class="cli-cmd">npm install </span><span class="cli-flag">-g @moltyclawlabs/cli</span></div>
+        <div class="cli-line">&nbsp;</div>
+        <div class="cli-line"><span class="cli-comment"># Initialize a new agent project</span></div>
+        <div class="cli-line"><span class="cli-prompt">$ </span><span class="cli-cmd">mcl init </span><span class="cli-flag">my-first-agent</span></div>
+        <div class="cli-line">&nbsp;</div>
+        <div class="cli-line"><span class="cli-comment"># Hatch it</span></div>
+        <div class="cli-line"><span class="cli-prompt">$ </span><span class="cli-cmd">mcl hatch </span><span class="cli-flag">--deploy</span></div>
+        <div class="cli-line"><span class="cli-success">✓ Agent hatched successfully! 🦞</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── COMMUNITY ── -->
+<section class="community" id="community">
+  <div class="section-inner">
+    <div class="section-label">Community</div>
+    <div class="section-title">Join the lab.</div>
+    <div class="section-desc">We build in the open. Come watch the experiment unfold — or better yet, grab a lab coat and help.</div>
+
+    <div class="social-links">
+      <a href="https://github.com" class="social-link">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.08-.73.08-.73 1.2.08 1.84 1.23 1.84 1.23 1.07 1.83 2.81 1.3 3.5 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 016.02 0c2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="https://discord.gg" class="social-link">
+        <svg viewBox="0 0 24 24"><path d="M20.32 4.37a19.8 19.8 0 00-4.88-1.52.07.07 0 00-.08.04c-.21.38-.44.87-.6 1.25a18.27 18.27 0 00-5.49 0 12.64 12.64 0 00-.62-1.25.08.08 0 00-.08-.04 19.74 19.74 0 00-4.88 1.52.07.07 0 00-.03.03C1.07 8.7.32 12.9.7 17.04a.08.08 0 00.03.06 19.9 19.9 0 005.99 3.03.08.08 0 00.08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 00-.04-.11 13.1 13.1 0 01-1.87-.9.08.08 0 01-.01-.13c.13-.09.25-.19.37-.29a.08.08 0 01.08-.01c3.93 1.8 8.18 1.8 12.07 0a.08.08 0 01.08.01c.12.1.25.2.37.29a.08.08 0 01 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 00-.04.1c.36.7.77 1.37 1.22 2a.08.08 0 00.08.04 19.84 19.84 0 006-3.04.08.08 0 00.03-.05c.44-4.54-.74-8.49-3.1-11.99a.06.06 0 00-.04-.03zM8.02 14.33c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.04 0-1.89-.95-1.89-2.12s.83-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12 0 1.17-.83 2.12-1.89 2.12z"/></svg>
+        Discord
+      </a>
+      <a href="https://x.com" class="social-link">
+        <svg viewBox="0 0 24 24"><path d="M18.24 2.25h3.31l-7.23 8.26 8.51 11.24h-6.66l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.17 2.25h6.83l4.72 6.24 5.52-6.24zm-1.16 17.52h1.84L7.08 4.13H5.12l11.96 15.64z"/></svg>
+        X / Twitter
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-left">
+    <svg width="24" height="24" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="8" fill="#16161c"/><circle cx="18" cy="16" r="6" fill="#e53935"/><circle cx="16" cy="15" r="2" fill="#0a0a0e"/><circle cx="20" cy="15" r="1.8" fill="#0a0a0e"/><circle cx="15" cy="14" r="0.8" fill="#fff"/><circle cx="19" cy="14" r="0.7" fill="#fff"/></svg>
+    <span>Molty Claw Labs · Built for the OpenClaw community</span>
+  </div>
+  <div class="footer-right">specimen: MCL-001 · 2026</div>
+</footer>
+
+<!-- ── SCROLL ANIMATIONS ── -->
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.about-card, .feature-card, .cli-block, .social-link').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(24px)';
+  el.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+  observer.observe(el);
+});
+
+// Stagger cards
+document.querySelectorAll('.feature-card').forEach((el, i) => {
+  el.style.transitionDelay = `${i * 0.08}s`;
+});
+
+document.querySelectorAll('.about-card').forEach((el, i) => {
+  el.style.transitionDelay = `${i * 0.1}s`;
+});
+
+document.querySelectorAll('.social-link').forEach((el, i) => {
+  el.style.transitionDelay = `${i * 0.08}s`;
+});
+
+// Nav background on scroll
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 50) {
+    nav.style.background = 'rgba(10,10,14,0.92)';
+  } else {
+    nav.style.background = 'rgba(10,10,14,0.7)';
+  }
+});
+</script>
+
+</body>
+</html>
